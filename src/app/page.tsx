@@ -1,103 +1,124 @@
+"use client";
+
+import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="min-h-screen bg-gradient-to-b from-[#0b132b] via-[#1c2541] to-[#3a506b] text-white flex flex-col items-center justify-center px-6 py-16 text-center">
+      {/* 🌟 Hero Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="max-w-3xl"
+      >
+        <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-yellow-400 drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]">
+          Raila Amollo Odinga
+        </h1>
+        <p className="text-lg md:text-xl text-yellow-100 mb-6 leading-relaxed">
+          “A man of resilience, courage, and undying love for Kenya.”
+          <br /> Honoring his journey — from activism to statesmanship.
+        </p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+        {/* 🕊️ Hero Image */}
+        <div className="flex justify-center mb-8">
+          <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-yellow-400 shadow-[0_0_40px_rgba(255,215,0,0.5)]">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src="/images/raila/hero.png"
+              alt="Raila Amollo Odinga"
+              fill
+              className="object-cover"
+              priority
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        {/* ✨ Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <Link
+            href="/tributes"    
+            className="px-8 py-3 bg-yellow-400 hover:bg-yellow-500 rounded-full font-semibold text-gray-900 shadow-lg hover:shadow-yellow-300/60 transition-transform transform hover:scale-105">
+            View Tributes
+          </Link>
+          
+          <Link
+            href="/admin"
+            className="px-8 py-3 bg-[#1c2541] hover:bg-[#3a506b] border border-yellow-400 rounded-full font-semibold text-yellow-300 shadow-md hover:shadow-yellow-400/40 transition-transform transform hover:scale-105"
+          >
+            Admin Dashboard
+          </Link>
+        </div>
+      </motion.div>
+
+      {/* 🕊️ Timeline Section */}
+      <section className="mt-20 max-w-6xl mx-auto text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-yellow-300 mb-10">
+          His Journey Through the Years
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              year: "1982",
+              title: "Detained for Fighting for Democracy",
+              desc: "Raila was imprisoned after the failed coup, marking the beginning of his struggle for multiparty democracy.",
+            },
+            {
+              year: "2002",
+              title: "NARC Victory",
+              desc: "Key architect in uniting opposition to end KANU’s 40-year rule — leading to a historic win for Mwai Kibaki.",
+            },
+            {
+              year: "2008",
+              title: "Prime Minister of Kenya",
+              desc: "Served as the 2nd Prime Minister of Kenya in the Grand Coalition Government, promoting unity and reform.",
+            },
+            {
+              year: "2010",
+              title: "Champion of the New Constitution",
+              desc: "Played a major role in shaping and passing Kenya’s 2010 Constitution — a defining democratic milestone.",
+            },
+            {
+              year: "2022",
+              title: "Elder Statesman",
+              desc: "Continued advocating for governance, youth empowerment, and Pan-African leadership.",
+            },
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 0 25px rgba(255, 215, 0, 0.6)",
+              }}
+              className="bg-[#1c2541]/80 border border-yellow-400 rounded-2xl p-6 shadow-md transition-all duration-300 hover:bg-[#1c2541]/90"
+            >
+              <h3 className="text-4xl font-extrabold text-yellow-400 drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">
+                {item.year}
+              </h3>
+              <p className="text-yellow-100 mt-3 font-semibold text-lg">
+                {item.title}
+              </p>
+              <p className="text-yellow-200 mt-2 text-sm leading-relaxed">
+                {item.desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* 🕊️ Footer */}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+        className="mt-16 text-yellow-200 text-sm"
+      >
+        © {new Date().getFullYear()} In Loving Memory of Raila Amollo Odinga.
+        <br />
+        Built with ❤️ by <span className="font-semibold text-yellow-400">Immaculate Munde</span>.
+      </motion.footer>
+    </main>
   );
 }
