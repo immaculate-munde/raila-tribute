@@ -8,6 +8,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   fetchSignInMethodsForEmail,
+  User,
 } from "firebase/auth";
 import { db, storage } from "@/lib/firebase";
 import {
@@ -20,21 +21,30 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Image from "next/image";
+
+interface Tribute {
+  id: string;
+  name: string;
+  message: string;
+  photoUrl?: string;
+  date: string;
+}
 
 export default function TributesPage() {
   const auth = getAuth();
 
   // 🔐 Auth state
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignup, setIsSignup] = useState(false);
 
   // 💌 Tributes state
-  const [tributes, setTributes] = useState<any[]>([]);
+  const [tributes, setTributes] = useState<Tribute[]>([]);
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -50,19 +60,22 @@ export default function TributesPage() {
     return () => unsubscribe();
   }, []);
 
-  // 📜 Load tributes
+  // 📜 Load tributes from Firestore
   useEffect(() => {
     if (!user) return;
     const q = query(collection(db, "tributes"), orderBy("date", "desc"));
     const unsub = onSnapshot(q, (snapshot) => {
       setTributes(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          date: doc.data().date?.toDate
-            ? doc.data().date.toDate().toLocaleString()
-            : "Just now",
-        }))
+        snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.name as string,
+            message: data.message as string,
+            photoUrl: data.photoUrl as string | undefined,
+            date: (data.date as Timestamp)?.toDate?.().toLocaleString() || "Just now",
+          };
+        })
       );
     });
     return () => unsub();
@@ -70,11 +83,9 @@ export default function TributesPage() {
 
   // 📷 Handle photo selection
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPhoto(file);
-      setPreview(URL.createObjectURL(file));
-    }
+    const file = e.target.files?.[0] || null;
+    setPhoto(file);
+    setPreview(file ? URL.createObjectURL(file) : null);
   };
 
   // 📝 Submit new tribute
@@ -144,7 +155,7 @@ export default function TributesPage() {
     }
   };
 
-  // 🔐 Email/password auth with single signup restriction
+  // 🔐 Email/password auth
   const handleEmailAuth = async () => {
     if (!email || !password) return alert("Enter email and password.");
     try {
@@ -164,8 +175,9 @@ export default function TributesPage() {
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) alert(err.message);
+      else console.error(err);
     }
   };
 
@@ -174,8 +186,9 @@ export default function TributesPage() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) alert(err.message);
+      else console.error(err);
     }
   };
 
@@ -243,9 +256,7 @@ export default function TributesPage() {
         onSubmit={handleSubmit}
         className="bg-gradient-to-br from-blue-950 to-blue-800 border border-yellow-500 rounded-3xl p-6 shadow-2xl max-w-xl mx-auto text-left mb-10"
       >
-        <label className="block mb-3 font-semibold text-yellow-300">
-          Your Name
-        </label>
+        <label className="block mb-3 font-semibold text-yellow-300">Your Name</label>
         <input
           type="text"
           value={name}
@@ -265,23 +276,12 @@ export default function TributesPage() {
         />
         <label className="cursor-pointer mb-4 inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-full transition">
           {photo ? "Change Photo" : "Choose Photo"}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-            className="hidden"
-          />
+          <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
         </label>
         {preview && (
           <div className="mb-4">
             <p className="text-yellow-300 mb-2">Preview:</p>
-            <Image
-              src={preview}
-              alt="Preview"
-              width={200}
-              height={200}
-              className="rounded-xl border border-yellow-400 mx-auto"
-            />
+            <Image src={preview} alt="Preview" width={200} height={200} className="rounded-xl border border-yellow-400 mx-auto" />
           </div>
         )}
         <button
@@ -301,15 +301,10 @@ export default function TributesPage() {
             className="bg-gradient-to-br from-blue-950 to-blue-800 border border-yellow-500 rounded-3xl p-5 shadow-lg hover:shadow-yellow-400/30 transition-all duration-300"
           >
             {t.photoUrl && (
-              <Image
-                src={t.photoUrl}
-                alt={t.name}
-                width={300}
-                height={200}
-                className="w-full h-40 object-cover rounded-lg mb-3"
-              />
+              <Image src={t.photoUrl} alt={t.name} width={300} height={200} className="w-full h-40 object-cover rounded-lg mb-3" />
             )}
             <h3 className="text-xl font-bold text-yellow-300">{t.name}</h3>
+
             {editingId === t.id ? (
               <>
                 <textarea
@@ -357,6 +352,5 @@ export default function TributesPage() {
     </main>
   );
 
-  // ✅ Render based on user
   return user ? renderTributesPage() : renderAuthForm();
 }
