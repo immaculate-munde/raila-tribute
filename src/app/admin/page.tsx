@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Tribute {
   id: string;
   name: string;
   message: string;
-  date: string;
+  date: string | { seconds: number; nanoseconds: number };
   photoUrl?: string;
 }
 
@@ -18,7 +19,6 @@ export default function AdminPage() {
   const [tributes, setTributes] = useState<Tribute[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔐 Hardcoded admin credentials
   const handleLogin = () => {
     if (email === "munde" && password === "munde@006") {
       setIsAuthenticated(true);
@@ -28,21 +28,33 @@ export default function AdminPage() {
     }
   };
 
-  // 🧭 Fetch all tributes
   const fetchTributes = async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/tributes");
-      const data = await res.json();
-      setTributes(data);
-    } catch (error) {
-      console.error("Failed to fetch tributes:", error);
+      if (!res.ok) throw new Error("Failed to fetch tributes");
+      const data: Tribute[] = await res.json();
+
+      // Convert Firestore Timestamps to strings safely
+      const formatted = data.map((t) => ({
+        ...t,
+        date:
+          typeof t.date === "string"
+            ? t.date
+            : t.date?.seconds
+            ? new Date(t.date.seconds * 1000).toLocaleString()
+            : "Just now",
+      }));
+
+      setTributes(formatted);
+    } catch (error: unknown) {
+      if (error instanceof Error) console.error("Failed to fetch tributes:", error.message);
+      else console.error("Failed to fetch tributes:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // 🗑️ Delete tribute
   const handleDelete = async (id: string, photoUrl?: string) => {
     if (!confirm("Are you sure you want to delete this tribute?")) return;
 
@@ -58,13 +70,12 @@ export default function AdminPage() {
 
       alert("✅ Tribute deleted successfully");
       fetchTributes(); // refresh list
-    } catch (err: any) {
-      console.error("❌ Delete failed:", err);
-      alert("Error deleting tribute: " + err.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) alert("Error deleting tribute: " + error.message);
+      else alert("Error deleting tribute: Unknown error");
     }
   };
 
-  // ---- LOGIN SCREEN ----
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#111122] to-[#0a0a0f] text-white">
@@ -104,7 +115,6 @@ export default function AdminPage() {
     );
   }
 
-  // ---- DASHBOARD SCREEN ----
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#111122] to-[#0a0a0f] text-white">
       <header className="flex justify-between items-center border-b border-[#f4c430]/20 px-8 py-4">
@@ -149,9 +159,11 @@ export default function AdminPage() {
                 className="bg-[#111122]/80 rounded-2xl p-5 shadow-lg border border-[#f4c430]/30 hover:shadow-[#f4c430]/30 hover:-translate-y-1 transition-all duration-300"
               >
                 {t.photoUrl && (
-                  <img
+                  <Image
                     src={t.photoUrl}
                     alt={t.name}
+                    width={400}
+                    height={300}
                     className="w-full h-48 object-cover rounded-lg mb-3"
                   />
                 )}
@@ -160,13 +172,23 @@ export default function AdminPage() {
                   <p className="text-gray-300 mt-2 leading-relaxed">{t.message}</p>
                 </div>
                 <div className="flex justify-between items-center text-sm text-gray-400 mt-4">
-                  <span className="italic">{t.date}</span>
-                  <button
-                    onClick={() => handleDelete(t.id, t.photoUrl)}
-                    className="px-3 py-1 bg-[#b22222] hover:bg-[#d32f2f] rounded-lg transition text-sm"
-                  >
-                    Delete
-                  </button>
+                  <span className="italic">
+                    {typeof t.date === "string" ? t.date : "Just now"}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleDelete(t.id, t.photoUrl)}
+                      className="px-2 py-1 bg-[#b22222] hover:bg-[#d32f2f] rounded-md text-xs transition"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => alert("Edit functionality coming soon")}
+                      className="px-2 py-1 bg-[#f4c430] hover:bg-[#e0b820] rounded-md text-xs transition text-black font-semibold"
+                    >
+                      Edit
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

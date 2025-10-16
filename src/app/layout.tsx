@@ -1,39 +1,19 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import ClientBody from "@/components/ClientBody";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
+export const metadata = {
   title: "Raila Tributes",
   description: "A heartfelt tribute platform to Raila Amollo Odinga.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-blue-950 via-blue-900 to-blue-950 text-yellow-50`}
-      >
-        {/* ✅ Navbar visible across all pages */}
+      <ClientBody>
         <Navbar />
-
-        {/* Spacer to avoid content hiding behind navbar */}
-         <div>{children}</div> {/* No padding */}
-      </body>
+        <div>{children}</div>
+      </ClientBody>
     </html>
   );
 }
